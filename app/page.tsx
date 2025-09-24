@@ -1,221 +1,218 @@
-import type { NextPage } from 'next';
-import { Inter } from 'next/font/google';
+'use client'
+import React, 'useState', 'useEffect' from 'react';
+// next/image와 next/link를 import 합니다.
+import Image from 'next/image';
+import Link from 'next/link';
+import { 
+  Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, ArrowRight,
+  ChevronLeft, ChevronRight, Microscope, Leaf, Globe
+} from 'lucide-react';
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  weight: ['400', '600', '700', '900'],
-  display: 'swap',
-});
+// --- 타입 정의 추가 ---
+type Slide = {
+  id: number;
+  image_url: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  button_text: string;
+  button_link: string;
+};
 
-// --- SVG Icon Components ---
-const LeafIcon = ({ className = "h-10 w-10 text-teal-600" }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 009-9h-9v9z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3a9 9 0 019 9h-9V3z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12a9 9 0 009 9v-9H3z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12a9 9 0 019-9v9H3z" />
-  </svg>
-);
-
-const PaperIcon = ({ className = "h-10 w-10 text-teal-600" }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-);
-
-const ShieldIcon = ({ className = "h-10 w-10 text-teal-600" }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944a11.955 11.955 0 009 2.056a11.955 11.955 0 009-2.056c0-1.344-.333-2.622-.94-3.816z" />
-    </svg>
-);
-
-const DropletIcon = ({ className = "h-10 w-10 text-teal-600" }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5C7.5 5.015 9.515 3 12 3s4.5 2.015 4.5 4.5c0 1.96-1.272 3.638-3 4.243V18a1.5 1.5 0 01-3 0v-6.257c-1.728-.605-3-2.283-3-4.243zM12 18h.01" />
-    </svg>
-);
-
-
-// --- Data for Page Sections (Content derived from provided documents) ---
-const technologies = [
+// --- 컴포넌트 외부로 데이터 분리 (불필요한 재생성 방지) ---
+const slideData: Slide[] = [
   {
-    icon: <DropletIcon />,
-    title: "BioSAP (Natural Absorbent)",
-    description: "A revolutionary 100% biodegradable natural absorbent designed to replace microplastic SAPs in diapers and sanitary pads. After use, it recycles into organic fertilizer, creating a perfect circular economy.",
+    id: 1,
+    image_url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200',
+    title: 'MarineBio',
+    subtitle: 'Revolutionary Marine Technology',
+    description: '차세대 해양 나노섬유 기술로 지속가능한 미래를 만들어갑니다',
+    button_text: '자세히 보기',
+    button_link: '/about'
   },
   {
-    icon: <PaperIcon />,
-    title: "Papermaking Filler",
-    description: "An innovative filler technology that dramatically reduces wood pulp usage, solving a decades-old challenge in the paper industry. A U.S. patent is pending, with a pilot project agreed upon with Western Michigan University.",
-  },
-  {
-    icon: <ShieldIcon />,
-    title: "Biodegradable Barrier Coating",
-    description: "A breakthrough technology to replace non-degradable plastic films in food packaging. Its scientific merit has been validated by a publication in a world-renowned Elsevier academic journal.",
-  },
-  {
-    icon: <LeafIcon />,
-    title: "Eco-Friendly Marine Materials",
-    description: "Advanced materials designed to replace existing sources of ocean pollution, such as styrofoam buoys and other plastic equipment, protecting marine ecosystems from microplastic contamination.",
-  },
+    id: 2,
+    image_url: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=1200',
+    title: 'Innovation',
+    subtitle: 'Advanced Nano-Fiber Technology',
+    description: '혁신적인 연구개발을 통해 새로운 가능성을 제시합니다',
+    button_text: '기술 보기',
+    button_link: '/technology'
+  }
 ];
 
-const achievements = [
-  {
-    title: "KSEA IR Competition Winner",
-    description: "Awarded Second Place at the prestigious Investor Relations competition hosted by the Korean-American Scientists and Engineers Association (KSEA) in Fairfax, VA, validating our business plan among U.S. experts.",
-    logo: "KSEA"
-  },
-  {
-    title: "Shark Tank Validation",
-    description: "Successfully passed the preliminary interview for ABC's acclaimed TV show \"Shark Tank,\" with a standing invitation to appear once our U.S. corporation is formally established.",
-    logo: "Shark Tank"
-  },
-  {
-    title: "U.S. Registered Trademark",
-    description: "Our brand 'MARINE GIFT' is a registered trademark with the U.S. Patent and Trademark Office (Reg. No. 7,153,311), securing our brand's legal protection in the American market.",
-    logo: "USPTO"
-  },
-];
+// 캐러셀 컴포넌트
+const HeroCarousel: React.FC = () => {
+  const [slides] = useState<Slide[]>(slideData); // 타입 적용
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-const featuredLogos = [
-    { name: "Forbes", src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Forbes_logo.svg/200px-Forbes_logo.svg.png" },
-    { name: "Bloomberg", src: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Bloomberg_logo.svg/200px-Bloomberg_logo.svg.png" },
-    { name: "Business Insider", src: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Business_Insider_logo.svg/200px-Business_Insider_logo.svg.png" },
-    { name: "Shark Tank", src: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Shark_Tank_logo.svg/200px-Shark_Tank_logo.svg.png" },
-];
+  useEffect(() => {
+    if (slides.length <= 1) return; // 슬라이드가 하나 이하면 실행 안함
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
 
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
-// --- Page Component ---
-const HomePage: NextPage = () => {
   return (
-    <div className={`bg-white text-gray-800 ${inter.className}`}>
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white bg-opacity-80 backdrop-blur-md shadow-sm z-50">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <LeafIcon className="h-8 w-8 text-teal-600"/>
-            <span className="text-2xl font-bold text-gray-800">MarineBio Group</span>
-          </div>
-          <div className="space-x-8 hidden md:flex items-center">
-            <a href="#technology" className="text-gray-600 hover:text-teal-600 transition-colors">Technology</a>
-            <a href="#validation" className="text-gray-600 hover:text-teal-600 transition-colors">Validation</a>
-            <a href="#about" className="text-gray-600 hover:text-teal-600 transition-colors">About</a>
-            <a href="#contact" className="bg-teal-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-teal-700 transition-colors">Contact</a>
-          </div>
-        </nav>
-      </header>
-
-      <main>
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center text-white text-center px-6 pt-20">
-           <div className="absolute inset-0 bg-cover bg-center brightness-50" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1437482078695-7cb3a70c0f86?q=80&w=2070&auto=format&fit=crop')" }}></div>
-           <div className="relative z-10 max-w-4xl mx-auto">
-              <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-tight drop-shadow-lg">Engineering Nature's Solutions.</h1>
-              <p className="mt-4 text-lg md:text-xl font-light text-slate-200 max-w-2xl mx-auto drop-shadow-md">
-                  We solve the global plastic pollution crisis with a portfolio of four proprietary, paradigm-shifting eco-friendly material technologies.
-              </p>
-              <a href="#technology" className="mt-10 inline-block bg-teal-500 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-teal-600 transition-transform hover:scale-105 shadow-xl">
-                  Discover Our Innovations
-              </a>
-           </div>
-        </section>
-
-        {/* As Featured In */}
-        <div className="bg-slate-100 py-12">
-          <div className="container mx-auto px-6">
-              <p className="text-center text-gray-500 font-semibold uppercase tracking-widest mb-8">Recognized By</p>
-              <div className="flex justify-center items-center flex-wrap gap-x-10 md:gap-x-16">
-                  {featuredLogos.map(logo => (
-                      <img key={logo.name} src={logo.src} alt={logo.name} className="h-6 md:h-8 object-contain my-2 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300" />
-                  ))}
-              </div>
+    <div className="relative h-96 lg:h-[500px] rounded-lg overflow-hidden shadow-xl">
+      {slides.map((slide, index) => (
+        <div
+          key={slide.id}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            index === currentSlide ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {/* --- 1. next/image 사용 --- */}
+          <Image 
+            src={slide.image_url} 
+            alt={slide.title} 
+            fill // 부모 요소를 꽉 채움
+            style={{ objectFit: 'cover' }} // CSS의 object-cover와 동일
+            priority={index === 0} // 첫 번째 이미지는 우선적으로 로드
+            quality={80}
+          />
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="text-center text-white px-8">
+              <h2 className="text-4xl lg:text-6xl font-bold mb-4">{slide.title}</h2>
+              <p className="text-xl lg:text-2xl mb-6 opacity-90">{slide.subtitle}</p>
+              <p className="text-lg mb-8 max-w-2xl mx-auto opacity-80">{slide.description}</p>
+              
+              {/* --- 2. next/link 사용 --- */}
+              <Link href={slide.button_link} className="inline-flex items-center bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors cursor-pointer">
+                {slide.button_text}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            </div>
           </div>
         </div>
-
-        {/* Technology Section */}
-        <section id="technology" className="py-24 md:py-32 bg-white">
-          <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">The Four Pillars of Innovation</h2>
-              <p className="mt-4 text-lg text-gray-600">Our technologies address the root causes of plastic pollution across critical industries, offering solutions where global giants have yet to succeed.</p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-10">
-              {technologies.map((tech) => (
-                <div key={tech.title} className="bg-slate-50 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex items-start space-x-6">
-                  <div className="flex-shrink-0 bg-teal-100 p-3 rounded-full">{tech.icon}</div>
-                  <div>
-                      <h3 className="text-2xl font-bold mb-3 text-gray-900">{tech.title}</h3>
-                      <p className="text-gray-600 leading-relaxed">{tech.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+      ))}
+      
+      {slides.length > 1 && (
+        <>
+          <button onClick={prevSlide} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full z-10">
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button onClick={nextSlide} className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full z-10">
+            <ChevronRight className="w-6 h-6" />
+          </button>
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentSlide ? 'bg-white' : 'bg-white/50'
+                }`}
+                aria-label={`Go to slide ${index + 1}`} // 접근성 개선
+              />
+            ))}
           </div>
-        </section>
-
-        {/* U.S. Market Validation Section */}
-        <section id="validation" className="py-24 md:py-32 bg-slate-900 text-white">
-          <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Validated by U.S. Experts</h2>
-              <p className="mt-4 text-lg text-slate-300">Our vision isn't just a plan; it's a proven business model recognized by leading platforms and authorities in the United States.</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-               {achievements.map((ach) => (
-                 <div key={ach.title} className="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-teal-500 transition-colors duration-300 transform hover:scale-105">
-                   <div className="text-3xl font-black text-teal-400 mb-4 tracking-tighter">{ach.logo}</div>
-                   <h3 className="text-2xl font-bold mb-3 text-white">{ach.title}</h3>
-                   <p className="text-slate-400 leading-relaxed">{ach.description}</p>
-                 </div>
-               ))}
-            </div>
-          </div>
-        </section>
-        
-        {/* About Us Section */}
-        <section id="about" className="py-24 md:py-32 bg-white">
-          <div className="container mx-auto px-6 grid md:grid-cols-5 items-center gap-12">
-              <div className="md:col-span-2">
-                  {/* Placeholder for an actual image of Mr. Heo */}
-                  <div className="w-64 h-64 md:w-80 md:h-80 mx-auto bg-slate-200 rounded-full shadow-2xl bg-cover bg-center" style={{backgroundImage: "url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop')"}}>
-                  </div>
-              </div>
-              <div className="md:col-span-3 text-center md:text-left">
-                  <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">The Visionary Leader</h2>
-                  <p className="mt-6 text-2xl text-gray-800 font-semibold">Yun Young Heo, Founder & CEO</p>
-                  <p className="mt-4 text-lg text-gray-600 leading-relaxed">
-                      Mr. Heo is the inventor and driving force behind MarineBio Group's entire technology portfolio. As the founder of 'Marinepad' and 'Arame Material,' he has led the journey from scientific discovery to commercial application. His work has been recognized by the KGCCI, the South Korean Government, and major international media. His vision is to establish the United States as the undisputed global leader in the sustainable materials industry.
-                  </p>
-              </div>
-          </div>
-        </section>
-
-        {/* Contact Section */}
-        <section id="contact" className="py-24 md:py-32 bg-slate-100">
-           <div className="container mx-auto px-6 text-center max-w-3xl">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">Join Us in Building a Sustainable Future.</h2>
-              <p className="mt-4 text-lg text-gray-600">
-                  We are actively seeking strategic partners, investors, and collaborators to accelerate the adoption of our technologies. Let's make a global impact, together.
-              </p>
-              <a href="mailto:ceo@marinebiogroup.com" className="mt-10 inline-block bg-teal-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-teal-700 transition-transform hover:scale-105 shadow-lg">
-                  Contact Us
-              </a>
-              <p className="mt-8 text-gray-500 font-semibold">MarineBio Group Inc.</p>
-              <p className="text-gray-500">Fairfax County, Virginia, USA</p>
-           </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-12">
-          <div className="container mx-auto px-6 text-center">
-              <p>&copy; {new Date().getFullYear()} MarineBio Group Inc. All rights reserved.</p>
-          </div>
-      </footer>
+        </>
+      )}
     </div>
   );
 };
 
-export default HomePage;
+// 문의하기 컴포넌트
+const ContactForm: React.FC = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | ''>('');
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // form 태그로 감쌀 경우를 대비
+    // ... (기존 로직 동일)
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-8">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">문의하기</h2>
+        <p className="text-gray-600">궁금한 점이 있으시면 언제든지 연락해 주세요.</p>
+      </div>
+
+      {/* 알림 메시지 부분은 기존 코드와 동일 */}
+      {submitStatus === 'success' && (
+        <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
+          <CheckCircle className="w-5 h-5 mr-2" /> 문의가 성공적으로 접수되었습니다.
+        </div>
+      )}
+      {submitStatus === 'error' && (
+         <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
+           <AlertCircle className="w-5 h-5 mr-2" /> 문의 접수 중 오류가 발생했습니다.
+         </div>
+      )}
+
+      {/* --- 4. label 추가 (접근성 향상) --- */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="name" className="sr-only">이름</label>
+          <input
+            id="name"
+            type="text"
+            placeholder="이름 *"
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="sr-only">이메일</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="이메일 *"
+            value={formData.email}
+            onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="message" className="sr-only">문의 내용</label>
+          <textarea
+            id="message"
+            placeholder="문의 내용 *"
+            rows={6}
+            value={formData.message}
+            onChange={(e) => setFormData(prev => ({...prev, message: e.target.value}))}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center"
+        >
+          {isSubmitting ? (
+            <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div> 전송 중...</>
+          ) : (
+            <><Send className="w-5 h-5 mr-2" /> 문의하기</>
+          )}
+        </button>
+      </form>
+      {/* ... 하단 연락처 정보는 기존과 동일 */}
+    </div>
+  );
+};
+
+
+// (MailingSubscription 컴포넌트도 ContactForm과 유사하게 label을 추가해주면 좋습니다)
+
+// HomePage 컴포넌트는 기존 코드와 동일
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <section className="container mx-auto px-4 py-8">
+        <HeroCarousel />
+      </section>
+      {/* ... 나머지 섹션들 */}
+    </div>
+  );
+}
